@@ -6,12 +6,42 @@
     <title>Document</title>
 </head>
 <body>
-    <main>
-        <div class="side-bar"></div>
-        <div class="dashboard">
-            <div id="todo-list"></div>
+    <!-- Sidebar -->
+    <aside class="sidebar">
+        <h2>Projects</h2>
+        <div class="project-list" id="projectList">
+            <!-- Projects will be rendered here by dom.js -->
+        </div>
+        <button class="add-project-btn" id="addProjectBtn">+ Add Project</button>
+    </aside>
+
+    <!-- Main Dashboard -->
+    <main class="dashboard">
+        <div class="dashboard-header">
+            <h1 id="projectTitle">Select a Project</h1>
+            <button class="add-task-btn" id="addTaskBtn" disabled>+ Add Task</button>
+        </div>
+        <div class="todo-list" id="todoList">
+            <div class="empty-state">
+                <h3>No Project Selected</h3>
+                <p>Select a project from the sidebar or create a new one to get started!</p>
+            </div>
         </div>
     </main>
-    
+
+    <!-- Modal for Adding Project/Task -->
+    <div class="modal" id="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="modalTitle">Add Project</h2>
+                <button class="close-modal" id="closeModal">&times;</button>
+            </div>
+            <form id="modalForm">
+                <!-- Form content will be dynamically inserted by dom.js -->
+            </form>
+        </div>
+    </div>
+
+
 </body>
 </html>
