@@ -32,10 +32,10 @@ export default class ProjectManager{
         this.projects = [];
 
         
-
+        
         if(!projectData || projectData.length === 0)
-        {
-           
+        { 
+            
             return
         }
 
@@ -43,14 +43,16 @@ export default class ProjectManager{
             
             const project = new Project(projectData.name)
 
-            if(projectData.toDoStorage && projectData.toDoStorage.length > 0){
-                project.forEach(todoData =>{
+                console.log(projectData.todo)
+            if(projectData.todo && projectData.todo.length > 0){
+                 
+                projectData.todo.forEach(todoData =>{
 
                     const todo = project.createTask(            
-                        todoData.taskName,
-                        todoData.taskDescription,
-                        todoData.taskDueDate,
-                        todoData.taskPriority,
+                        todoData.task,
+                        todoData.description,
+                        todoData.duedate,
+                        todoData.priority,
                         );
 
                     if(todoData.completed){
