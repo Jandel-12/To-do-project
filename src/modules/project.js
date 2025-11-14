@@ -1,24 +1,32 @@
 import ToDo from "./todo.js";
-
+//main Goal
+//holds the todo
+//create project then push it
 
 export default class Project{
     constructor(name){
         this.name = name
-        this.todos = [];
+        this.toDoStorage = []
     }
 
-    createProject(task, description, duedate, priority){
+    createTask(task, description, duedate, priority){
        const createTask = new ToDo(task, description, duedate, priority, this.name);
-       this.todos.push(createTask);
+       this.toDoStorage.push(createTask);
     }
 
-    
-    deleteTodo(index) {
-        this.todos.splice(index, 1);
+    getAllTask(){
+        return this.toDoStorage
     }
 
-    getTodo(){
-        return this.todos;
+    findTask(name) {
+        const task = this.toDoStorage.findIndex(element => element.task === name);
+        return task !== -1 ? task : "Task Doesn't Exist";
     }
+
+    removeTask(index){
+        this.toDoStorage.splice(index, 1);
+        return this.toDoStorage
+    }
+
+
 }
-

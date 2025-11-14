@@ -33,13 +33,35 @@
         }
 
         .project-item {
+            display: flex;
+         
+            align-items: center;
             padding: 12px 15px;
             margin-bottom: 8px;
             background-color: #34495e;
             border-radius: 5px;
             cursor: pointer;
             transition: background-color 0.2s;
+            position: relative;
         }
+
+        .delete-project{
+            position: absolute;
+            right: 20px;
+            background-color:#34495e;
+            color: white;
+            border: none;
+            border-radius: 10%;
+            padding: 3px;
+            font-size: 1.5rem;
+        }
+
+        .delete-project:hover{
+            background-color: #c0392b;
+            
+        }
+
+
 
         .project-item:hover {
             background-color: #3d566e;

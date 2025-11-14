@@ -1,21 +1,34 @@
 import "./style.css"
-import ProjectManager from './modules/projectManager.js';
-import DOMController from './modules/dom.js';
+import ProjectManager from "./modules/projectManager.js"
+import DOMcontroller from "./modules/dom.js";
+import toDoStorage from "./modules/storageManager.js";
+
 
 const projectManager = new ProjectManager();
-const domController = new DOMController(projectManager);
+const storageManager = new toDoStorage()
+const domController = new DOMcontroller(projectManager, storageManager);
 
-// Add test projects
-projectManager.addProject('Work');
-projectManager.addProject('Personal');
 
-// Add some todos to "Work" project
-projectManager.addTodoToProject('Work', 'Finish report', 'Complete quarterly report', '2024-12-01', 'high');
-projectManager.addTodoToProject('Work', 'Team meeting', 'Discuss project roadmap', '2024-11-15', 'medium');
-projectManager.addTodoToProject('Work', 'Code review', 'Review pull requests', '2024-11-10', 'low');
+function initializeApp(){
 
-// Add todo to "Personal" project
-projectManager.addTodoToProject('Personal', 'Buy groceries', 'Milk, eggs, bread', '2024-11-06', 'medium');
+    const savedData = storageManager.loadProjects();
+    
 
-// Initialize
-domController.init();
+    if(savedData){
+        
+        projectManager.loadFromData(savedData)
+
+    }
+    else{
+        console.log('bitch it failed');
+    }
+
+    domController.init();
+}
+
+initializeApp();
+
+
+
+
+

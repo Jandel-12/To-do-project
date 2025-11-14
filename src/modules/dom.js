@@ -1,146 +1,69 @@
-export default class DOMController {
-    constructor(projectManager) {
-        // Store reference to ProjectManager (our data layer)
-        this.projectManager = projectManager;
-        
-        // Track currently selected project
+import { ta } from "date-fns/locale";
+import toDoStorage from "./storageManager";
+
+export default class DOMcontroller{
+    constructor(manager,storage){
+        this.manager = manager;
+
+        this.storage = storage;
+
         this.currentProject = null;
-        
-        // Cache DOM elements so we don't query them repeatedly
-        this.elements = {
-            // Sidebar
-            projectList: document.getElementById('projectList'),
-            addProjectBtn: document.getElementById('addProjectBtn'),
-            
-            // Dashboard
-            projectTitle: document.getElementById('projectTitle'),
-            todoList: document.getElementById('todoList'),
-            addTaskBtn: document.getElementById('addTaskBtn'),
-            
+
+        //all selector
+        this.element = {
+            //sidebar
+            projectList: document.getElementById("projectList"),
+            projectBtn: document.getElementById("addProjectBtn"),
+            //dashboard
+            addTaskBtn: document.getElementById("addTaskBtn"),
+            todoList: document.getElementById("todoList"),
+            projectTitle: document.getElementById("projectTitle"),
             // Modal
             modal: document.getElementById('modal'),
             modalTitle: document.getElementById('modalTitle'),
             modalForm: document.getElementById('modalForm'),
             closeModal: document.getElementById('closeModal')
-        };
+        }
     }
 
-    // Initialize the app - set up event listeners
-    init() {
-        console.log('🚀 DOMController initialized');
-        this.setupEventListeners();
-        this.renderProjects(); 
-    }
+    
+    setupEventListener(){
 
-    // Set up all event listeners
-    setupEventListeners() {
-        // Sidebar: Add Project button
-        this.elements.addProjectBtn.addEventListener('click', () => {
+
+        this.element.projectBtn.addEventListener('click', ()=>{
+            //add project button open modal for project
             this.openProjectModal();
         });
 
-        // Dashboard: Add Task button
-        this.elements.addTaskBtn.addEventListener('click', () => {
-            this.openTodoModal();
+        this.element.addTaskBtn.addEventListener('click', ()=>{
+            //add task open modal for task
+            this.openTaskModal();
         });
 
-        // Modal: Close button
-        this.elements.closeModal.addEventListener('click', () => {
+        this.element.closeModal.addEventListener('click', ()=>{
             this.closeModal();
-        });
+        })
 
-        // Modal: Click outside to close
-        this.elements.modal.addEventListener('click', (e) => {
-            if (e.target === this.elements.modal) {
+        this.element.modal.addEventListener('click', (e)=>{
+            if(e.target === this.element.modal){
                 this.closeModal();
             }
-        });
+        })
 
-        console.log('✅ Event listeners set up');
     }
 
-    // Render all projects in the sidebar
-    renderProjects() {
-        console.log('📋 Rendering projects...');
-        
-        // Get all projects from ProjectManager
-        const projects = this.projectManager.getAllProject();
-        
-        // Clear the current list
-        this.elements.projectList.innerHTML = '';
-        
-        // If no projects exist, show a message
-        if (projects.length === 0) {
-            this.elements.projectList.innerHTML = `
-                <div style="color: #95a5a6; text-align: center; padding: 20px;">
-                    No projects yet. Create one to get started!
-                </div>
-            `;
-            return;
-        }
-        
-        // Loop through each project and create HTML
-        projects.forEach(project => {
-            const projectElement = this.createProjectElement(project);
-            this.elements.projectList.appendChild(projectElement);
-        });
-        
-        console.log(`✅ Rendered ${projects.length} project(s)`);
-    }
-
-    // Create a single project element
-    createProjectElement(project) {
-        const div = document.createElement('div');
-        div.className = 'project-item';
-        div.textContent = project.name;
-        
-        // Store project name as data attribute for easy access
-        div.dataset.projectName = project.name;
-        
-        // Add active class if this is the current project
-        if (this.currentProject && this.currentProject.name === project.name) {
-            div.classList.add('active');
-        }
-        
-        // Add click handler to select this project
-        div.addEventListener('click', () => {
-            this.selectProject(project.name);
-        });
-        
-        return div;
-    }
-
-    // Select a project and display its todos
-    selectProject(projectName) {
-        console.log(`🔍 Selecting project: ${projectName}`);
-        
-        // Find the project
-        this.currentProject = this.projectManager.findProject(projectName);
-        
-        if (!this.currentProject) {
-            console.error('❌ Project not found');
-            return;
-        }
-        
-        // Update UI
-        this.elements.projectTitle.textContent = this.currentProject.name;
-        this.elements.addTaskBtn.disabled = false; // Enable "Add Task" button
-        
-        // Re-render projects to update active state
+    //initialize the dom
+    init(){
+        this.setupEventListener();
         this.renderProjects();
-        
-        // Render todos for this project (we'll build this next)
-        this.renderTodos();
     }
 
-    openProjectModal() {
-        console.log('🔵 Opening project modal...');
+
+    //modal function
+    openProjectModal(){
+        this.element.modalTitle.textContent = 'Add New Project';
         
-        // Set modal title
-        this.elements.modalTitle.textContent = 'Add New Project';
-        
-        // Create form HTML for adding a project
-        this.elements.modalForm.innerHTML = `
+        this.element.modalForm.innerHTML = `
             <div class="form-group">
                 <label for="projectName">Project Name *</label>
                 <input 
@@ -157,42 +80,36 @@ export default class DOMController {
                 <button type="submit" class="submit-btn">Create Project</button>
             </div>
         `;
-        
-        // Show modal
-        this.elements.modal.classList.add('active');
-        
-        // Focus on input field
-        setTimeout(() => {
-            document.getElementById('projectName').focus();
-        }, 100);
-        
-        // Set up form submission
-        this.elements.modalForm.onsubmit = (e) => {
-            e.preventDefault();
-            this.handleProjectSubmit();
-        };
-        
-        // Cancel button
-        document.getElementById('cancelBtn').addEventListener('click', () => {
+
+            this.element.modal.classList.add('active')
+
+            setTimeout(()=>{
+                document.getElementById('projectName')
+            },100)
+
+            this.element.modalForm.onsubmit = (e) =>{
+                e.preventDefault();
+                this.handleProjectSubmit();
+            }
+
+            cancelBtn.addEventListener('click',()=>{
             this.closeModal();
-        });
+            })
     }
 
-    openTodoModal() {
-        console.log('🔵 Opening todo modal...');
-        
-        // Make sure a project is selected
-        if (!this.currentProject) {
-            alert('Please select a project first!');
-            return;
+
+
+
+    openTaskModal(){
+
+        if(this.currentProject === null){
+            alert("Please Select A Project First");
+            return
         }
+        this.element.modalTitle.textContent = `Add Task to  ${this.currentProject}`;
         
-        // Set modal title
-        this.elements.modalTitle.textContent = `Add Task to "${this.currentProject.name}"`;
-        
-        // Create form HTML for adding a task
-        this.elements.modalForm.innerHTML = `
-            <div class="form-group">
+        this.element.modalForm.innerHTML = `
+          <div class="form-group">
                 <label for="taskName">Task Title *</label>
                 <input 
                     type="text" 
@@ -233,112 +150,132 @@ export default class DOMController {
                 <button type="submit" class="submit-btn">Add Task</button>
             </div>
         `;
-        
-        // Show modal
-        this.elements.modal.classList.add('active');
-        
-        // Focus on input field
-        setTimeout(() => {
-            document.getElementById('taskName').focus();
-        }, 100);
-        
-        // Set up form submission
-        this.elements.modalForm.onsubmit = (e) => {
-            e.preventDefault();
-            this.handleTodoSubmit();
-        };
-        
-        // Cancel button
-        document.getElementById('cancelBtn').addEventListener('click', () => {
+
+            this.element.modal.classList.add('active')
+
+            setTimeout(()=>{
+                document.getElementById('taskName').focus()
+            },100)
+
+            this.element.modalForm.onsubmit = (e) =>{
+                e.preventDefault();
+                this.handleTaskSubmit();
+            }
+
+            cancelBtn.addEventListener('click',()=>{
             this.closeModal();
-        });
+            })
     }
 
-    // Handle project form submission
-    handleProjectSubmit() {
-        const projectNameInput = document.getElementById('projectName');
-        const projectName = projectNameInput.value.trim();
-        
-        // Validate
-        if (!projectName) {
-            alert('Please enter a project name!');
-            return;
-        }
-        
-        // Check if project already exists
-        const existingProject = this.projectManager.findProject(projectName);
-        if (existingProject) {
-            alert('A project with this name already exists!');
-            return;
-        }
-        
-        // Create project
-        const newProject = this.projectManager.addProject(projectName);
-        console.log(`✅ Created project: ${projectName}`);
-        
-        // Update UI
-        this.renderProjects();
-        this.selectProject(projectName); // Auto-select the new project
-        
-        // Close modal
-        this.closeModal();
+    closeModal(){
+        this.element.modal.classList.remove('active');
     }
 
-    // Handle todo form submission
-    handleTodoSubmit() {
-        // Get form values
-        const taskName = document.getElementById('taskName').value.trim();
-        const taskDescription = document.getElementById('taskDescription').value.trim();
-        const taskDueDate = document.getElementById('taskDueDate').value;
-        const taskPriority = document.getElementById('taskPriority').value;
-        
-        // Validate
-        if (!taskName) {
-            alert('Please enter a task title!');
-            return;
-        }
-        
-        // Create todo
-        this.projectManager.addTodoToProject(
-            this.currentProject.name,
-            taskName,
-            taskDescription,
-            taskDueDate,
-            taskPriority
-        );
-        
-        console.log(`✅ Created todo: ${taskName} in ${this.currentProject.name}`);
-        
-        // Update UI
-        this.renderTodos();
-        
-        // Close modal
-        this.closeModal();
-    }
+    //renderer for project
+    renderProjects(){
+        const projects = this.manager.getAllProjects();
+        this.element.projectList.innerHTML = "";
 
-    renderTodos() {
-        console.log('📝 Rendering todos...');
-        
-        // Clear the todo list
-        this.elements.todoList.innerHTML = '';
-        
-        // Make sure we have a project selected
-        if (!this.currentProject) {
-            this.elements.todoList.innerHTML = `
-                <div class="empty-state">
-                    <h3>No Project Selected</h3>
-                    <p>Select a project from the sidebar or create a new one to get started!</p>
+        if(projects.length === 0){
+                        this.element.projectList.innerHTML = `
+                <div style="color: #95a5a6; text-align: center; padding: 20px;">
+                    No projects yet. Create one to get started!
                 </div>
             `;
             return;
         }
+
+        projects.forEach(projects => {
+            this.createProjectElement(projects)
+        });
+    }
+
+    createProjectElement(project){
+        const div = document.createElement("div");
+        div.classList.add("project-item");
+        div.innerHTML = project.name;
         
-        // Get todos from current project
-        const todos = this.currentProject.getTodo();
         
-        // If no todos exist, show empty state
-        if (todos.length === 0) {
-            this.elements.todoList.innerHTML = `
+        //delete button
+        const deleteBtn = document.createElement("button");
+        deleteBtn.textContent = "\uD83D\uDDD1"
+        deleteBtn.classList.add("delete-project")
+        deleteBtn.addEventListener('click', ()=>{
+            this.removeProject(project)
+        })
+        div.appendChild(deleteBtn)
+
+        this.element.projectList.appendChild(div);
+        
+        div.addEventListener('click',()=>{
+            this.selectProject(project);
+        })
+        return div
+    }
+
+    removeProject(project){
+            const result = confirm("Are you sure you want to delete?");
+            if (result) {
+                
+                alert("Item deleted successfully!");
+            } else {
+                
+                alert("Deletion cancelled.");
+                return
+            }
+        
+        
+        this.manager.removeProject(project.name);
+
+        this.storage.saveProjects(this.manager)
+        this.renderProjects();
+    }
+
+
+    // Select Project fuction
+    selectProject(project){
+    
+        this.currentProject = project;
+   
+        this.element.projectTitle.innerText =  `Project: ${project.name}`;
+        this.element.addTaskBtn.disabled = false;
+
+
+
+        this.renderProjects();
+        this.renderTodo();
+
+        return this.currentProject
+    }
+    //Form handlers
+
+    handleProjectSubmit(){
+        const projectInput = document.getElementById("projectName");
+        const projectName = projectInput.value.trim();
+
+        //check if project already exist
+        if(this.manager.findProject(projectName) === "Project Doesn't Exist"){
+            const newProject = this.manager.createProject(projectName);            
+
+        } else
+        {
+            alert("This project Already exist")
+            return
+        }
+
+        this.storage.saveProjects(this.manager);
+
+        this.renderProjects();
+        this.closeModal();
+    }
+
+
+    renderTodo() {
+
+        const tasks = this.currentProject.getAllTask();
+        this.element.todoList.innerHTML = "";
+        if (tasks.length === 0) {
+            this.element.todoList.innerHTML = `
                 <div class="empty-state">
                     <h3>No Tasks Yet</h3>
                     <p>Click "Add Task" to create your first todo!</p>
@@ -346,19 +283,16 @@ export default class DOMController {
             `;
             return;
         }
-        
-        // Loop through todos and create elements
-        todos.forEach((todo, index) => {
-            const todoElement = this.createTodoElement(todo, index);
-            this.elements.todoList.appendChild(todoElement);
-        });
-        
-        console.log(`✅ Rendered ${todos.length} todo(s)`);
+
+        tasks.forEach((task, index)=>{
+           const taskList = this.createTaskElement(task,index);
+            this.element.todoList.appendChild(taskList)
+        })
     }
 
-    // Create a single todo element
-    createTodoElement(todo, index) {
-        // Main container
+
+    createTaskElement(todo, index){
+
         const div = document.createElement('div');
         div.className = 'todo-item';
         
@@ -429,38 +363,56 @@ export default class DOMController {
         div.appendChild(actionsDiv);
         
         return div;
+
+        
     }
 
-    // Toggle todo completion status
-    toggleTodoComplete(index) {
-        if (!this.currentProject) return;
+    //handle submit
+
+    handleTaskSubmit(){
+        const taskName = document.getElementById('taskName').value.trim();
+        const taskDescription = document.getElementById('taskDescription').value.trim();
+        const taskDueDate = document.getElementById('taskDueDate').value;
+        const taskPriority = document.getElementById('taskPriority').value;
+
+        const projectIndex = this.manager.findProject(this.currentProject.name);
+        const project = this.manager.getAllProjects()[projectIndex]
+
+        project.createTask(
+            taskName,
+            taskDescription,
+            taskDueDate,
+            taskPriority,
+        )
+
+        this.storage.saveProjects(this.manager);
+
         
-        const todos = this.currentProject.getTodo();
-        const todo = todos[index];
-        
-        if (todo) {
-            todo.toggleComplete();
-            console.log(`✅ Toggled todo: ${todo.task} - Completed: ${todo.completed}`);
-            this.renderTodos(); // Re-render to show updated state
-        }
+
+        this.renderTodo(project)
+        this.closeModal()
     }
 
-    // Delete a todo
-    deleteTodo(index) {
-        if (!this.currentProject) return;
-        
-        const todos = this.currentProject.getTodo();
-        const todo = todos[index];
-        
-        if (todo && confirm(`Delete "${todo.task}"?`)) {
-            this.currentProject.deleteTodo(index);
-            console.log(`🗑️ Deleted todo: ${todo.task}`);
-            this.renderTodos(); // Re-render to show updated list
-        }
+    toggleTodoComplete(index){
+       const currentTask = this.currentProject.getAllTask()[index];
+        currentTask.toggleComplete()
+
+        this.storage.saveProjects(this.manager);
+
+        this.renderTodo(this.currentProject);
     }
 
-    closeModal() {
-        console.log('❌ Closing modal...');
-        this.elements.modal.classList.remove('active');
+    deleteTodo(index){
+        this.currentProject.removeTask(index)
+
+
+        this.storage.saveProjects(this.manager);
+
+        this.renderTodo(this.currentProject)
     }
+    
 }
+
+
+
+

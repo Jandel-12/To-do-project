@@ -4,6 +4,7 @@ dist/
 .cache/
 coverage/
 *.log
+testLogic.js
 
 # === VS Code ===
 .vscode/

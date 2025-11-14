@@ -1,32 +1,68 @@
 import Project from "./project.js";
+//create Projects 
+
 
 export default class ProjectManager{
     constructor(){
-        this.project = [];
+        this.projects = []
     }
 
-    addProject(name){
+    createProject(name){
         const newProject = new Project(name);
-        this.project.push(newProject);
-        return newProject;
-    }   
-
-    getAllProject(){
-        return this.project;
+        this.projects.push(newProject);
+        return newProject
     }
 
-    findProject(name){
-        return this.project.find(projectName => projectName.name === name)
+    getAllProjects(){
+        return this.projects
     }
 
-    addTodoToProject(projectName,task, description, duedate, priority ){
-        const project = this.findProject(projectName);
+    findProject(name) {
+        const project = this.projects.findIndex(element => element.name === name);
+        return project !== -1 ? project : "Project Doesn't Exist";
+    }
 
-        if(project){
-           return  project.createProject(task, description, duedate, priority)
+    removeProject(name){
+        this.projects.splice(this.findProject(name), 1);
+        return this.projects
+    }
+
+
+    loadFromData(projectData){
+        this.projects = [];
+
+        
+
+        if(!projectData || projectData.length === 0)
+        {
+           
+            return
         }
-        else{
-            console.log("Project Not found");
-        }
+
+        projectData.forEach( projectData => {
+            
+            const project = new Project(projectData.name)
+
+            if(projectData.toDoStorage && projectData.toDoStorage.length > 0){
+                project.forEach(todoData =>{
+
+                    const todo = project.createTask(            
+                        todoData.taskName,
+                        todoData.taskDescription,
+                        todoData.taskDueDate,
+                        todoData.taskPriority,
+                        );
+
+                    if(todoData.completed){
+                        todo.toggleComplete();
+                    }
+                });
+            }
+
+            this.projects.push(project);
+        });
+
+        
     }
+
 }
